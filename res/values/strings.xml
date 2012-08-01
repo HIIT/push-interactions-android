@@ -2,5 +2,6 @@
 <resources>
     
     <string name="app_name">PushI</string>
+    <string name="gcm_app_id"></string>
 
 </resources>
