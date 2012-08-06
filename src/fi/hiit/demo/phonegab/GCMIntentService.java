@@ -27,19 +27,20 @@ public class GCMIntentService extends GCMBaseIntentService {
 		// get the executable js
 		// TODO: FIXME
 		String js = intent.getStringExtra("javascript");
-		Intent i = new Intent(PhoneGabDemoAndroidActivity.SENDER_ID );
-        i.putExtra("javascript", js);
-		context.sendBroadcast(i);
+		Intent push = new Intent(PhoneGabDemoAndroidActivity.SENDER_ID );
+        push.putExtra("javascript", js);
+        
+		
 		
 		// check if application is running
-		if( ! PhoneGabDemoAndroidActivity.isRunning ) {
-			
-			Intent app = new Intent();
-			app.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    app.setClass( context, PhoneGabDemoAndroidActivity.class );
-		    app.putExtra("javascript", js);
-		    
-		    startActivity(app);
+		if( PhoneGabDemoAndroidActivity.isRunning ) {
+			sendBroadcast( push );
+		} else {
+	        // if application is not running, following attributes are needed
+	        push.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    push.setClass( context, PhoneGabDemoAndroidActivity.class );
+
+		    startActivity( push );
 		}
 	}
 
