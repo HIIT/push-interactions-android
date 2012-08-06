@@ -12,11 +12,18 @@ import org.apache.cordova.*;
 public class PhoneGabDemoAndroidActivity extends DroidGap {
 	
 	// service id for GCM
-	public static String SENDER_ID = getString( R.string.gcm_app_id );
+	public static String SENDER_ID = "";
+	
+	{
+		SENDER_ID = getString( R.string.gcm_app_id );
+	
+	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       
+  
         
         Log.v(TAG, "Jee " + SENDER_ID);
         
