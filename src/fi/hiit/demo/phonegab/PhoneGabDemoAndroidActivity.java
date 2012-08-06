@@ -1,7 +1,6 @@
 package fi.hiit.demo.phonegab;
 
 import android.content.*;
-import android.content.IntentFilter.MalformedMimeTypeException;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,9 +13,26 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 	// service id for GCM
 	public static String SENDER_ID = "";
 	
+	public static boolean isRunning = false;
+	
+	private BroadcastReceiver receiver = null;
+	
 	{
 		SENDER_ID = getString( R.string.gcm_app_id );
 	
+	}
+	
+	public void onResume() {
+		isRunning = true;
+		
+        receiver = new PushReciever();
+        registerReceiver(receiver, new IntentFilter(SENDER_ID) );
+	}
+	
+	public void onPause() {
+		isRunning = false;
+		
+		unregisterReceiver(receiver);
 	}
 	
     @Override
@@ -33,17 +49,9 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
         final String regId = GCMRegistrar.getRegistrationId(this);
         if (regId.equals("")) {
           GCMRegistrar.register(this, SENDER_ID);
-          Log.v(TAG, "Registered system");
         } else {
-          Log.v(TAG, "Already registered");
           Log.v(TAG, regId );
         }
-        
-        BroadcastReceiver receiver = new PushReciever();
-        
-        registerReceiver(receiver, new IntentFilter(SENDER_ID) );
- 
-        Log.v(TAG, "Hello" );
         
         // open PhoneGab app
         super.setIntegerProperty("loadUrlTimeoutValue", Integer.MAX_VALUE);
@@ -55,14 +63,9 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
     }
     
 	private class PushReciever extends BroadcastReceiver {
-		
-		public PushReciever() {
-			Log.v(TAG, "PushReciever <3");
-		}
 
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
-			Log.v(TAG, "Hello is ok!");
 			// get message and execute it
 			String js = intent.getStringExtra("javascript");
 			PhoneGabDemoAndroidActivity.this.executeJS(js);
