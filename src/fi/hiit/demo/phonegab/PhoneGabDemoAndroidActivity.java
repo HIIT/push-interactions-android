@@ -17,19 +17,22 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 	
 	private BroadcastReceiver receiver = null;
 	
-	{
-		SENDER_ID = getString( R.string.gcm_app_id );
-	
-	}
 	
 	public void onResume() {
+		super.onResume();
 		isRunning = true;
 		
         receiver = new PushReciever();
         registerReceiver(receiver, new IntentFilter(SENDER_ID) );
+        
+        // get the current activity javascript
+        Intent i = getIntent();
+        String js = i.getStringExtra("javascript");
+        executeJS(js);
 	}
 	
 	public void onPause() {
+		super.onPause();
 		isRunning = false;
 		
 		unregisterReceiver(receiver);
@@ -38,10 +41,9 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       
-  
         
-        Log.v(TAG, "Jee " + SENDER_ID);
+        SENDER_ID = getString( R.string.gcm_app_id );
+
         
         // register device
         GCMRegistrar.checkDevice(this);
@@ -66,6 +68,7 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
+			Log.v(TAG, "Hello World");
 			// get message and execute it
 			String js = intent.getStringExtra("javascript");
 			PhoneGabDemoAndroidActivity.this.executeJS(js);
