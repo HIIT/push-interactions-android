@@ -1,7 +1,9 @@
 package fi.hiit.demo.phonegab;
 
+import android.app.NotificationManager;
 import android.content.*;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.google.android.gcm.*;
@@ -17,6 +19,8 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 	
 	private BroadcastReceiver receiver = null;
 	
+	public static NotificationManager notifMng;
+
 	
 	public void onResume() {
 		super.onResume();
@@ -44,6 +48,7 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
         
         SENDER_ID = getString( R.string.gcm_app_id );
 
+        notifMng = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         
         // register device
         GCMRegistrar.checkDevice(this);
@@ -61,6 +66,7 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
     }
     
     public void executeJS(String js){
+    	// alert the user that a new message has arrived    	
     	super.loadUrl("javascript:" + js);
     }
     
