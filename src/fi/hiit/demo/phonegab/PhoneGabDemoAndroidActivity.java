@@ -1,10 +1,12 @@
 package fi.hiit.demo.phonegab;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.*;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.google.android.gcm.*;
 
@@ -18,10 +20,7 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 	public static boolean isRunning = false;
 	
 	private BroadcastReceiver receiver = null;
-	
-	public static NotificationManager notifMng;
-
-	
+		
 	public void onResume() {
 		super.onResume();
 		isRunning = true;
@@ -29,10 +28,14 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
         receiver = new PushReciever();
         registerReceiver(receiver, new IntentFilter(SENDER_ID) );
         
-        // get the current activity javascript
-        Intent i = getIntent();
-        String js = i.getStringExtra("javascript");
-        executeJS(js);
+        Log.d(TAG, "JS Resumed");
+        
+        String js = getIntent().getStringExtra("javascript");
+        
+        if( js != null ) {
+        	this.executeJS( js );
+        }
+
 	}
 	
 	public void onPause() {
@@ -40,15 +43,20 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 		isRunning = false;
 		
 		unregisterReceiver(receiver);
+		// remove this activity
+		this.finish();
 	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "Kissa!");
+        
+        // open PhoneGab app
+        super.setIntegerProperty("loadUrlTimeoutValue", Integer.MAX_VALUE);
+        super.loadUrl("file:///android_asset/html/clean.html");
         
         SENDER_ID = getString( R.string.gcm_app_id );
-
-        notifMng = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         
         // register device
         GCMRegistrar.checkDevice(this);
@@ -56,16 +64,22 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
         final String regId = GCMRegistrar.getRegistrationId(this);
         if (regId.equals("")) {
           GCMRegistrar.register(this, SENDER_ID);
+          Log.v(TAG, "Register");
         } else {
+          Log.v(TAG, "OK");
           Log.v(TAG, regId );
         }
         
-        // open PhoneGab app
-        super.setIntegerProperty("loadUrlTimeoutValue", Integer.MAX_VALUE);
-        super.loadUrl("file:///android_asset/html/clean.html");
+        // disable keyboard lock
+        getWindow().addFlags( WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        
+        Log.v(TAG, "Created!!!");
     }
     
     public void executeJS(String js){
+    	
+    	// create notification
+       	Log.d( TAG , "JS executed " + js);
     	// alert the user that a new message has arrived    	
     	super.loadUrl("javascript:" + js);
     }
@@ -74,7 +88,7 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
-			Log.v(TAG, "Hello World");
+			Log.v(TAG, "GOT JS");
 			// get message and execute it
 			String js = intent.getStringExtra("javascript");
 			PhoneGabDemoAndroidActivity.this.executeJS(js);
@@ -82,5 +96,5 @@ public class PhoneGabDemoAndroidActivity extends DroidGap {
 		}
 		
 	}
-    
+	
 }
